@@ -1,0 +1,10 @@
+Core/Windows
+Core/Linux
+Core/heightmap.png
+Core/RSCoreModules.pyd
+RenderPipeline/
+Data/Terrain/
+Temp/
+BrainzCore.pyd
+instance.pid
+*.blend
