@@ -1,0 +1,28 @@
+Vertex:
+    template: default
+    inout:
+        - uniform samplerBuffer chunkDataBuffer;
+        - uniform sampler2D heightmap;
+        - uniform vec3 terrainOffset;
+        - uniform vec3 terrainScale;
+    inject:
+        vertex:
+            vec4 chunk_data = texelFetch(chunkDataBuffer, gl_InstanceID);
+            vOutput.position.xy = p3d_Vertex.xy * chunk_data.z;
+            vOutput.position.xy += chunk_data.xy;
+            vOutput.position.z = 0.0;
+            vOutput.texcoord = vOutput.position.xy / textureSize(heightmap, 0).xy;
+            vOutput.position.z += texture(heightmap, vOutput.texcoord).x;
+            vOutput.position.xyz = vOutput.position.xyz * terrainScale + terrainOffset;
+            if (any(greaterThan(vOutput.texcoord, vec2(1.0 - 1.0 / 2048.0))) || any(lessThan(vOutput.texcoord, vec2(1.0 / 2048.0)))) {
+                vOutput.position.z = terrainOffset.z - 500.0;
+            }
+
+Fragment.GBuffer:
+    template: default
+
+Fragment.Shadows:
+    template: default
+
+Fragment.Voxelize:
+    template: default
