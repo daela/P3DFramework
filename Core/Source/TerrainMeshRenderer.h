@@ -1,3 +1,4 @@
+#pragma once
 
 #include <cmath>
 #include <iostream>
@@ -15,8 +16,7 @@
 #include "lens.h"
 #include "boundingBox.h"
 
-NotifyCategoryDecl(terrain,,);
-
+NotifyCategoryDecl(terrain, EXPORT_CLASS, EXPORT_TEMPL);
 
 class TerrainMeshRenderer {
 
