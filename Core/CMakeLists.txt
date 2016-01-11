@@ -62,6 +62,9 @@ else()
 
 endif()
 
+# Also find and include Eigen3
+find_package(Eigen3)
+include_directories("${EIGEN3_INCLUDE_DIR}")
 
 # Link panda includes / libraries
 include_directories("${PANDA_INCLUDE_DIR}")
