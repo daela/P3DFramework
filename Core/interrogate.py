@@ -3,8 +3,8 @@ from os import system, getcwd, listdir
 from direct.stdpy.file import join, isfile
 
 if len(sys.argv) != 4:
-    print "Invalid arguments!"
-    print "Arguments must be: [panda-bin] [panda-libs] [panda-include]"
+    print("Invalid arguments!")
+    print("Arguments must be: [panda-bin] [panda-libs] [panda-include]")
     sys.exit(0)
 
 PANDA_BIN = sys.argv[1]
@@ -25,7 +25,7 @@ allSources = [i for i in listdir("Source") if isfile(join("Source", i)) and chec
 
 allSourcesStr = ' '.join(['"' + i + '"' for i in allSources])
 
-print "\nRunning interrogate .."
+print("\nRunning interrogate ..")
 
 command = PANDA_BIN + \
     "/interrogate -D__inline -DCPPPARSER -DP3_INTERROGATE=1 -D__cplusplus "
@@ -47,16 +47,16 @@ command += "-srcdir \"" + join(cwd, "Source") + "\" "
 
 command += allSourcesStr
 
-print command
+print(command)
 
 system(command)
 
-print "\nRunning interrogate_module .."
+print("\nRunning interrogate_module ..")
 command = PANDA_BIN + "/interrogate_module "
 command += "-python-native " 
 command += "-module RSCoreModules " 
 command += "-library RSCoreModules " 
 command += "-oc Source/InterrogateWrapper.cxx " 
 command += "Source/InterrogateModule.in " 
-print command
+print(command)
 system(command)
