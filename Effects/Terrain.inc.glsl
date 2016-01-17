@@ -4,12 +4,13 @@
 // Compute normal from a heightmap
 vec3 compute_terrain_normal(sampler2D map, vec2 terrain_coord, float terrain_height, out vec3 tangent, out vec3 binormal) {
     vec3 pixel_size = vec3(1.0, -1.0, 0) / textureSize(map, 0).xxx;
+    float normal_smoothness = 0.7;
     float h_u0 = texture(map, terrain_coord + pixel_size.yz).x * terrain_height;
     float h_u1 = texture(map, terrain_coord + pixel_size.xz).x * terrain_height;
     float h_v0 = texture(map, terrain_coord + pixel_size.zy).x * terrain_height;
     float h_v1 = texture(map, terrain_coord + pixel_size.zx).x * terrain_height;
-    tangent = normalize(vec3(1, 0, h_u1 - h_u0));
-    binormal = normalize(vec3(0, 1, h_v1 - h_v0));
+    tangent = normalize(vec3(normal_smoothness, 0, h_u1 - h_u0));
+    binormal = normalize(vec3(0, normal_smoothness, h_v1 - h_v0));
     return normalize(cross(tangent, binormal));
 }
 
@@ -31,9 +32,6 @@ vec4 sample_triplanar(sampler2D tex, vec3 world_pos, vec3 world_normal, float te
     vec3 blend = abs(world_normal);
     blend = normalize(max(blend, 0.00001));
     blend /= dot(blend, vec3(1));
-
-    // return texture(tex, world_pos.xy * tex_scale);
-
     vec4 sample_x = texture(tex, world_pos.yz * tex_scale);
     vec4 sample_y = texture(tex, world_pos.xz * tex_scale);
     vec4 sample_z = texture(tex, world_pos.xy * tex_scale);
@@ -45,9 +43,6 @@ vec4 sample_triplanar_twice(sampler2D tex, vec3 world_pos, vec3 world_normal, fl
     vec3 blend = abs(world_normal);
     blend = normalize(max(blend, 0.00001));
     blend /= dot(blend, vec3(1));
-
-    // return texture(tex, world_pos.xy * tex_scale);
-
     vec4 sample_x = texture(tex, world_pos.yz * tex_scale1) * texture(tex, world_pos.yz * tex_scale2) * 2.0;
     vec4 sample_y = texture(tex, world_pos.xz * tex_scale1) * texture(tex, world_pos.xz * tex_scale2) * 2.0;
     vec4 sample_z = texture(tex, world_pos.xy * tex_scale1) * texture(tex, world_pos.xy * tex_scale2) * 2.0;

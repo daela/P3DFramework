@@ -1,12 +1,12 @@
 Vertex:
     template: default
-    inout:
-        - uniform samplerBuffer chunkDataBuffer;
-        - uniform sampler2D heightmap;
-        - uniform vec3 terrainOffset;
-        - uniform vec3 terrainScale;
+    inout: |
+        uniform samplerBuffer chunkDataBuffer;
+        uniform sampler2D heightmap;
+        uniform vec3 terrainOffset;
+        uniform vec3 terrainScale;
     inject:
-        vertex:
+        vertex: |
             vec4 chunk_data = texelFetch(chunkDataBuffer, gl_InstanceID);
             vOutput.position.xy = p3d_Vertex.xy * chunk_data.z;
             vOutput.position.xy += chunk_data.xy;
@@ -14,29 +14,30 @@ Vertex:
             vOutput.texcoord = vOutput.position.xy / textureSize(heightmap, 0).xy;
             vOutput.position.z += texture(heightmap, vOutput.texcoord).x;
             vOutput.position.xyz = vOutput.position.xyz * terrainScale + terrainOffset;
-            vOutput.last_proj_position = lastViewProjMatNoJitter * vec4(vOutput.position, 1);
+            vOutput.last_proj_position = MainSceneData.last_view_proj_mat_no_jitter * vec4(vOutput.position, 1);
             if (any(greaterThan(vOutput.texcoord, vec2(1.0 - 1.0 / 2048.0))) || any(lessThan(vOutput.texcoord, vec2(1.0 / 2048.0)))){
                 vOutput.position.z = terrainOffset.z - 500.0;
             }
 
 Fragment.GBuffer:
+
     template: default
     dependencies:
-        - Data/Effects/Terrain.inc.glsl
-    inout:
-        - uniform sampler2D heightmap;
-        - uniform sampler2D flowmap;
-        - uniform vec3 terrainScale;
-        - uniform sampler2D grassDiffuse;
-        - uniform sampler2D grassNormal;
-        - uniform sampler2D rockDiffuse;
-        - uniform sampler2D rockNormal;
-        - uniform sampler2D gravelDiffuse;
-        - uniform sampler2D gravelNormal;
-        - uniform sampler2D snowDiffuse;
-        - uniform sampler2D snowNormal;
+        - Effects/Terrain.inc.glsl
+    inout: |
+        uniform sampler2D heightmap;
+        uniform sampler2D flowmap;
+        uniform vec3 terrainScale;
+        uniform sampler2D grassDiffuse;
+        uniform sampler2D grassNormal;
+        uniform sampler2D rockDiffuse;
+        uniform sampler2D rockNormal;
+        uniform sampler2D gravelDiffuse;
+        uniform sampler2D gravelNormal;
+        uniform sampler2D snowDiffuse;
+        uniform sampler2D snowNormal;
     inject:
-        material:
+        material: |
             vec3 tangent, binormal;
             vec3 normal = compute_terrain_normal(heightmap, vOutput.texcoord, terrainScale.z * 0.50, tangent, binormal);
             float height = texture(heightmap, vOutput.texcoord).x;
@@ -57,8 +58,8 @@ Fragment.GBuffer:
             float snow = 0.0;
             rock = saturate( (pow(slope, 1.5) * 12.0 - 0.1) * 1.5);
 
-            snow = saturate(1.0 * saturate(height-0.56));
-            snow *= saturate(pow(saturate(1.1 - slope), 8.0)) * 16.0;
+            snow = saturate(2.0 * saturate(height-0.45));
+            snow *= saturate(pow(saturate(1.01 - slope), 8.0)) * 16.0;
             //snow *= saturate(pow(saturate(0.01+slope), 4.0)) * 60.0;
             snow *= pow( saturate(0.05+flow*0.2), 1.0) * 15.0;
             snow -= 0.04;
@@ -92,16 +93,15 @@ Fragment.GBuffer:
             terrainNormal += snow * snowNormal.xyz * 0.01;
 
             terrainNormal = normalize(terrainNormal);
-
             terrainColor = pow(terrainColor, vec3(1.4));
-
-            //m.normal = mergeNormal(terrainNormal, 0.3, normal, tangent, binormal);
+            
             m.normal = terrain_apply_normal_map(normal, terrainNormal, 0.3, tangent, binormal);
             //m.normal = terrainNormal;
             m.basecolor = terrainColor;
-            m.specular = 0.03;
-            m.roughness = 0.5;
+            m.specular_ior = 1.0;
+            m.roughness = 0.8;
             m.metallic = 0.0;
+            m.translucency = 0.0;
 
 Fragment.Shadows:
     template: default

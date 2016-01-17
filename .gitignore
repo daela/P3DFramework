@@ -8,3 +8,5 @@ Temp/
 BrainzCore.pyd
 instance.pid
 *.blend
+InterrogateModule.*
+heightmap.png
