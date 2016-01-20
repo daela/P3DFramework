@@ -28,7 +28,7 @@ class App(ShowBase):
         load_prc_file_data("", """
         model-cache-dir
         fullscreen #f
-        win-size 1600 900
+        win-size 1920 1080
         window-title Render Pipeline by tobspr 
         icon-filename Data/GUI/icon.ico
         """)
